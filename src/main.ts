@@ -60,6 +60,9 @@ function boot() {
     detachInputs();
     if (settings.inputMode === "buttons") buttons.attach();
     else touch.attach();
+    // D-pad 표시 후 레이아웃이 바뀌므로 보드 크기를 다시 계산
+    renderer.resize();
+    requestAnimationFrame(() => renderer.resize());
   };
 
   const onResize = () => renderer.resize();
