@@ -1,9 +1,8 @@
-// sw.js — 간단한 오프라인 캐시 (런타임 cache-first)
-const CACHE = "blockari-v1";
+// sw.js — 네트워크 우선(network-first) 캐시. 온라인이면 항상 최신, 오프라인이면 캐시.
+const CACHE = "blockari-v3";
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();
-  // "./"는 sw.js 위치(=배포 base) 기준으로 해석됨
   e.waitUntil(caches.open(CACHE).then((c) => c.add("./")));
 });
 
@@ -23,16 +22,14 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) {
     return;
   }
+  // 네트워크 우선: 최신을 받아오고 캐시에 갱신. 실패(오프라인) 시 캐시 폴백.
   e.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-          return res;
-        })
-        .catch(() => cached);
-    })
+    fetch(req)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy));
+        return res;
+      })
+      .catch(() => caches.match(req).then((c) => c || Promise.reject()))
   );
 });

@@ -68,6 +68,10 @@ function boot() {
   const onResize = () => renderer.resize();
   window.addEventListener("resize", onResize);
   window.addEventListener("orientationchange", onResize);
+  // 보드 영역 크기가 바뀔 때마다(예: D-pad 표시로 줄어들 때) 자동 재계산
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(() => renderer.resize()).observe(stage);
+  }
 
   // Wake Lock
   let wakeLock: WakeLockSentinel | null = null;
