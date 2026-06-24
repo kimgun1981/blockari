@@ -131,8 +131,8 @@ body {
 #controls {
   width: 100%;
   max-width: 480px;
-  min-height: 40px;
-  padding: 4px 12px 10px;
+  min-height: 0;
+  padding: 2px 12px 6px;
   flex-shrink: 0; /* 컨트롤(D-pad) 자리는 항상 확보, 보드가 대신 줄어듦 */
 }
 
@@ -171,15 +171,15 @@ body {
   grid-template-areas:
     "left soft right"
     "rot  hard hold";
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   max-width: 420px;
   margin: 0 auto;
   touch-action: none;
 }
 .dbtn {
-  height: 56px;
-  font-size: 22px;
+  height: 42px;
+  font-size: 20px;
   font-family: inherit;
   font-weight: bold;
   color: var(--text);
