@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0a0a14" />
+    <meta name="description" content="오락실 감성 모바일 블록 게임 · 100단계" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="BLOCKARI" />
+    <title>BLOCKARI</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="topbar">
+        <button id="btn-sound" class="topbtn">🔊</button>
+        <button id="btn-pause" class="topbtn">⏸</button>
+        <button id="btn-menu" class="topbtn">≡</button>
+      </div>
+      <header id="hud">
+        <div class="hud-cell">
+          <span class="hud-label">SCORE</span>
+          <span id="score" class="hud-value">0</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">BEST</span>
+          <span id="best" class="hud-value">0</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">LEVEL</span>
+          <span id="level" class="hud-value">1</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">LINES</span>
+          <span id="lines" class="hud-value">0</span>
+        </div>
+      </header>
+
+      <div id="trays">
+        <div class="tray">
+          <span class="hud-label">HOLD</span>
+          <canvas id="hold" class="preview"></canvas>
+        </div>
+        <div class="tray next">
+          <span class="hud-label">NEXT</span>
+          <canvas id="next" class="preview"></canvas>
+        </div>
+      </div>
+
+      <main id="stage">
+        <!-- 게임 보드 -->
+        <canvas id="board"></canvas>
+      </main>
+
+      <footer id="controls">
+        <!-- 단계 5에서 모바일 가상 버튼이 들어올 자리 -->
+        <p class="keyhint">
+          ← → 이동 · ↑/X 회전 · ↓ 소프트 · Space 하드드롭 · Shift/C 홀드 · P
+          일시정지 · R 재시작
+        </p>
+      </footer>
+    </div>
+
+    <div id="crt"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
