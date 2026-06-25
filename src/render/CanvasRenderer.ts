@@ -184,7 +184,7 @@ export class CanvasRenderer {
 
     ctx.fillStyle = this.accent;
     ctx.font = `${Math.max(11, this.cell * 0.5)}px monospace`;
-    ctx.fillText("R 재시작 · M(≡) 메뉴", w / 2, h * 0.72);
+    ctx.fillText("R 재시작 · ✕ 나가기", w / 2, h * 0.72);
     ctx.textBaseline = "alphabetic";
   }
 

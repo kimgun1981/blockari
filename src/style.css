@@ -143,19 +143,20 @@ body {
   }
 }
 
-/* ── 상단바 (일시정지/메뉴) ── */
+/* ── 상단바 (소리/일시정지/나가기) ── */
 #topbar {
-  position: fixed;
-  top: calc(env(safe-area-inset-top) + 6px);
-  right: calc(env(safe-area-inset-right) + 8px);
+  width: 100%;
+  max-width: 480px;
   display: flex;
+  justify-content: flex-end;
   gap: 6px;
-  z-index: 50;
+  padding: 4px 10px 0;
+  flex-shrink: 0;
 }
 .topbtn {
   width: 40px;
-  height: 40px;
-  font-size: 18px;
+  height: 36px;
+  font-size: 16px;
   color: var(--text);
   background: rgba(20, 20, 42, 0.7);
   border: 1px solid #33335a;
