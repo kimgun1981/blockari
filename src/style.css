@@ -1,8 +1,8 @@
 :root {
-  --bg: #0a0a14;
-  --panel: #14142a;
+  --bg: #131634;
+  --panel: #20223f;
   --accent: #36e2ff;
-  --text: #e6e6f0;
+  --text: #eef0fb;
   color-scheme: dark;
 }
 
@@ -41,9 +41,9 @@ body {
   width: 100%;
   max-width: 480px;
   display: flex;
-  justify-content: space-around;
-  padding: 8px 10px;
-  gap: 6px;
+  align-items: stretch;
+  padding: 6px 8px;
+  gap: 5px;
 }
 
 .hud-cell {
@@ -52,8 +52,11 @@ body {
   background: var(--panel);
   border: 1px solid #2a2a44;
   border-radius: 8px;
-  padding: 5px 4px;
+  padding: 4px 3px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .hud-label {
@@ -83,8 +86,8 @@ body {
 }
 
 #board {
-  background: #05050c;
-  border: 2px solid #2a2a44;
+  background: #0e1124;
+  border: 2px solid #34386a;
   border-radius: 6px;
   /* JS가 style.width/height(=콘텐츠 크기)를 직접 지정하므로
      테두리가 콘텐츠를 줄이지 않도록 content-box로 둔다 */
@@ -143,20 +146,16 @@ body {
   }
 }
 
-/* ── 상단바 (소리/일시정지/나가기) ── */
+/* ── 상단바 (소리/일시정지/나가기) — HUD 줄 안에 통합 ── */
 #topbar {
-  width: 100%;
-  max-width: 480px;
   display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 4px 10px 0;
-  flex-shrink: 0;
+  gap: 4px;
+  flex: 0 0 auto;
+  align-items: stretch;
 }
 .topbtn {
-  width: 40px;
-  height: 36px;
-  font-size: 16px;
+  width: 32px;
+  font-size: 15px;
   color: var(--text);
   background: rgba(20, 20, 42, 0.7);
   border: 1px solid #33335a;
@@ -371,7 +370,7 @@ body {
     to bottom,
     rgba(0, 0, 0, 0) 0,
     rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0.16) 3px
+    rgba(0, 0, 0, 0.09) 3px
   );
   mix-blend-mode: multiply;
 }
@@ -381,8 +380,8 @@ body {
   inset: 0;
   background: radial-gradient(
     ellipse at center,
-    rgba(0, 0, 0, 0) 55%,
-    rgba(0, 0, 0, 0.35) 100%
+    rgba(0, 0, 0, 0) 65%,
+    rgba(0, 0, 0, 0.2) 100%
   );
 }
 body.crt #crt {

@@ -226,7 +226,7 @@ export class CanvasRenderer {
   private drawGrid(): void {
     const ctx = this.ctx;
     const cell = this.cell;
-    ctx.strokeStyle = "rgba(255,255,255,0.05)";
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
     ctx.lineWidth = 1;
     for (let x = 0; x <= BOARD_WIDTH; x++) {
       ctx.beginPath();

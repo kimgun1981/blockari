@@ -15,7 +15,7 @@ export const THEMES: Record<ThemeName, Theme> = {
     name: "neon",
     label: "네온",
     accent: "#36e2ff",
-    bg: "#05050c",
+    bg: "#0e1124",
     palette: {
       1: "#36e2ff",
       2: "#ffd500",
