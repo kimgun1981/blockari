@@ -395,9 +395,10 @@ body.crt #crt {
   opacity: 0.45;
 }
 
-/* ── 시작 화면 / 설정 화면 ── */
+/* ── 시작 화면 / 설정 화면 / 레벨 도전 화면 ── */
 #start-screen,
-#settings-screen {
+#settings-screen,
+#level-screen {
   position: fixed;
   inset: 0;
   display: none;

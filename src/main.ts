@@ -6,15 +6,13 @@ import { TouchInput } from "./input/TouchInput";
 import { ButtonInput } from "./input/ButtonInput";
 import { HUD } from "./ui/HUD";
 import { StartScreen, type StartChoice } from "./ui/StartScreen";
+import { LevelSelect } from "./ui/LevelSelect";
 import { SettingsPanel } from "./ui/SettingsPanel";
 import { loadSettings, saveSettings } from "./ui/settings";
 import { setHaptics } from "./input/haptics";
 import { audio } from "./audio/ChiptuneEngine";
-import { dailySeed } from "./game/rng";
-import { loadLastReplay, decodeReplay, type Replay } from "./game/replay";
 import { THEMES } from "./render/themes";
 
-// 확장: 일일 챌린지 · 리플레이 · 리더보드 · 테마 · 색맹 모드
 function boot() {
   const canvas = document.getElementById("board") as HTMLCanvasElement | null;
   const stage = document.getElementById("stage");
@@ -32,7 +30,17 @@ function boot() {
   const hud = new HUD();
   const engine = new GameEngine(renderer, (v) => hud.update(v));
 
-  // 테마/색맹 적용
+  // 메뉴 화면 (아래에서 생성, 닫기 헬퍼는 미리 선언)
+  let startScreen: StartScreen;
+  let levelSelect: LevelSelect;
+  let settingsPanel: SettingsPanel;
+  const closeMenus = () => {
+    startScreen?.hide();
+    levelSelect?.hide();
+    settingsPanel?.hide();
+  };
+
+  // 테마/색맹
   const applyTheme = () => {
     renderer.setTheme(settings.theme);
     hud.setTheme(settings.theme);
@@ -61,7 +69,6 @@ function boot() {
     detachInputs();
     if (settings.inputMode === "buttons") buttons.attach();
     else touch.attach();
-    // D-pad 표시 후 레이아웃이 바뀌므로 보드 크기를 다시 계산
     renderer.resize();
     requestAnimationFrame(() => renderer.resize());
   };
@@ -69,7 +76,6 @@ function boot() {
   const onResize = () => renderer.resize();
   window.addEventListener("resize", onResize);
   window.addEventListener("orientationchange", onResize);
-  // 보드 영역 크기가 바뀔 때마다(예: D-pad 표시로 줄어들 때) 자동 재계산
   if ("ResizeObserver" in window) {
     new ResizeObserver(() => renderer.resize()).observe(stage);
   }
@@ -102,39 +108,21 @@ function boot() {
     audio.setSfxVolume(settings.sfxVol);
   };
 
-  // 공통 시작 준비 (사용자 제스처 → 오디오 활성화)
-  const prepare = () => {
-    startScreen.hide();
+  // 게임 시작 (시작 버튼 탭 = 사용자 제스처 → 오디오 활성화)
+  const startGame = (choice: StartChoice) => {
+    closeMenus();
     setHaptics(settings.haptics);
     audio.init();
     audio.resume();
     audio.setMuted(false);
     applyAudioSettings();
-    renderer.resize();
-    requestWake();
-  };
-
-  const startGame = (choice: StartChoice) => {
-    prepare();
     applyInputMode();
+    requestWake();
     engine.start(choice);
   };
-  const startDaily = () => {
-    prepare();
-    applyInputMode();
-    engine.start({ startLevel: 1, autoLevelUp: true, seed: dailySeed(), daily: true });
-  };
-  const playReplay = (r: Replay) => {
-    prepare();
-    detachInputs(); // 리플레이 중 사용자 입력 차단
-    engine.startReplay(r);
-  };
-  const playLastReplay = () => {
-    const r = loadLastReplay();
-    if (r) playReplay(r);
-  };
 
-  const settingsPanel = new SettingsPanel(
+  // 화면 인스턴스
+  settingsPanel = new SettingsPanel(
     {
       onThemeChange: () => applyTheme(),
       onColorblindChange: (on) => renderer.setColorblind(on),
@@ -145,12 +133,20 @@ function boot() {
     },
     settings
   );
-
-  const startScreen = new StartScreen(
+  levelSelect = new LevelSelect({
+    onStart: startGame,
+    onBack: () => {
+      levelSelect.hide();
+      startScreen.show();
+    },
+  });
+  startScreen = new StartScreen(
     {
       onStart: startGame,
-      onDaily: startDaily,
-      onReplay: playLastReplay,
+      onLevelSelect: () => {
+        startScreen.hide();
+        levelSelect.show();
+      },
       onOpenSettings: () => {
         startScreen.hide();
         settingsPanel.show();
@@ -163,6 +159,7 @@ function boot() {
     engine.stop();
     releaseWake();
     detachInputs();
+    closeMenus();
     startScreen.show();
   };
 
@@ -188,21 +185,9 @@ function boot() {
     if (ev.code === "KeyM" && !ev.repeat) goMenu();
   });
 
-  // 공유 리플레이 링크 (#r=...) 자동 재생
-  const hash = location.hash;
-  if (hash.startsWith("#r=")) {
-    const r = decodeReplay(hash.slice(3));
-    history.replaceState(null, "", location.pathname); // 해시 제거
-    if (r) {
-      playReplay(r);
-    } else {
-      startScreen.show();
-    }
-  } else {
-    startScreen.show();
-  }
+  startScreen.show();
 
-  // PWA 서비스워커 (프로덕션 빌드에서만, base 경로 기준 등록)
+  // PWA 서비스워커 (프로덕션 빌드에서만, base 경로 기준)
   if (import.meta.env.PROD && "serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       const swUrl = `${import.meta.env.BASE_URL}sw.js`;
@@ -212,7 +197,7 @@ function boot() {
     });
   }
 
-  console.log("BLOCKARI — 확장: 일일챌린지·리플레이·리더보드·테마·색맹");
+  console.log("BLOCKARI — 메인 간소화: 레벨도전 분리, 리플레이 제거");
 }
 
 boot();
