@@ -4,7 +4,6 @@ import { getLevelConfig } from "../config/difficulty";
 import { type Settings, saveSettings } from "./settings";
 import { loadLeaderboard } from "./highscore";
 import { loadLastReplay, encodeReplay } from "../game/replay";
-import { THEMES, type ThemeName } from "../render/themes";
 
 export interface StartChoice {
   startLevel: number;
@@ -15,8 +14,7 @@ export interface StartScreenCallbacks {
   onStart: (c: StartChoice) => void;
   onDaily: () => void;
   onReplay: () => void;
-  onThemeChange: (name: ThemeName) => void;
-  onColorblindChange: (on: boolean) => void;
+  onOpenSettings: () => void;
 }
 
 export class StartScreen {
@@ -87,62 +85,8 @@ export class StartScreen {
               <button data-mode="buttons">버튼</button>
             </div>
           </div>
-          <div class="ss-srow">
-            <span>테마</span>
-            <div class="ss-seg" id="ss-theme"></div>
-          </div>
-          <div class="ss-srow">
-            <span>색맹 모드<small>블록에 무늬</small></span>
-            <label class="ss-switch">
-              <input type="checkbox" id="ss-cb" />
-              <span></span>
-            </label>
-          </div>
-          <div class="ss-srow">
-            <span>햅틱 진동</span>
-            <label class="ss-switch">
-              <input type="checkbox" id="ss-haptics" />
-              <span></span>
-            </label>
-          </div>
-          <div class="ss-srow ss-dasrow">
-            <span>DAS <i id="ss-dasv"></i></span>
-            <input type="range" id="ss-das" min="60" max="300" step="10" />
-          </div>
-          <div class="ss-srow ss-dasrow">
-            <span>ARR <i id="ss-arrv"></i></span>
-            <input type="range" id="ss-arr" min="0" max="120" step="5" />
-          </div>
-          <div class="ss-srow">
-            <span>BGM</span>
-            <label class="ss-switch">
-              <input type="checkbox" id="ss-bgm" />
-              <span></span>
-            </label>
-          </div>
-          <div class="ss-srow">
-            <span>BGM 볼륨</span>
-            <input type="range" id="ss-bgmvol" min="0" max="100" step="5" />
-          </div>
-          <div class="ss-srow">
-            <span>효과음</span>
-            <label class="ss-switch">
-              <input type="checkbox" id="ss-sfx" />
-              <span></span>
-            </label>
-          </div>
-          <div class="ss-srow">
-            <span>효과음 볼륨</span>
-            <input type="range" id="ss-sfxvol" min="0" max="100" step="5" />
-          </div>
-          <div class="ss-srow">
-            <span>CRT 효과</span>
-            <label class="ss-switch">
-              <input type="checkbox" id="ss-crt" />
-              <span></span>
-            </label>
-          </div>
         </div>
+        <button class="ss-btn" id="ss-more">⚙️ 추가 설정 (테마·소리·CRT 등)</button>
       </div>`;
 
     this.range = root.querySelector<HTMLInputElement>("#ss-range")!;
@@ -186,8 +130,11 @@ export class StartScreen {
     root
       .querySelector("#ss-replay-share")!
       .addEventListener("click", () => this.shareReplay());
+    root
+      .querySelector("#ss-more")!
+      .addEventListener("click", () => this.cb.onOpenSettings());
 
-    this.wireSettings(root);
+    this.wireInputMode(root);
     refresh();
     return root;
   }
@@ -251,120 +198,20 @@ export class StartScreen {
     }
   }
 
-  private wireSettings(root: HTMLElement): void {
+  private wireInputMode(root: HTMLElement): void {
     const s = this.settings;
-
-    // 조작 방식
     const seg = root.querySelector<HTMLElement>("#ss-input")!;
-    const dasRows = root.querySelectorAll<HTMLElement>(".ss-dasrow");
-    const syncInputMode = () => {
-      seg.querySelectorAll("button").forEach((b) =>
+    const sync = () =>
+      seg.querySelectorAll<HTMLButtonElement>("button").forEach((b) =>
         b.classList.toggle("on", b.dataset.mode === s.inputMode)
       );
-      dasRows.forEach(
-        (r) => (r.style.opacity = s.inputMode === "buttons" ? "1" : "0.4")
-      );
-    };
     seg.querySelectorAll<HTMLButtonElement>("button").forEach((b) => {
       b.addEventListener("click", () => {
         s.inputMode = b.dataset.mode as Settings["inputMode"];
-        syncInputMode();
+        sync();
         saveSettings(s);
       });
     });
-
-    // 테마
-    const themeSeg = root.querySelector<HTMLElement>("#ss-theme")!;
-    themeSeg.innerHTML = (Object.keys(THEMES) as ThemeName[])
-      .map((n) => `<button data-theme="${n}">${THEMES[n].label}</button>`)
-      .join("");
-    const syncTheme = () => {
-      themeSeg.querySelectorAll<HTMLButtonElement>("button").forEach((b) =>
-        b.classList.toggle("on", b.dataset.theme === s.theme)
-      );
-    };
-    themeSeg.querySelectorAll<HTMLButtonElement>("button").forEach((b) => {
-      b.addEventListener("click", () => {
-        s.theme = b.dataset.theme as ThemeName;
-        syncTheme();
-        saveSettings(s);
-        this.cb.onThemeChange(s.theme);
-      });
-    });
-    syncTheme();
-
-    // 색맹
-    const cb = root.querySelector<HTMLInputElement>("#ss-cb")!;
-    cb.checked = s.colorblind;
-    cb.addEventListener("change", () => {
-      s.colorblind = cb.checked;
-      saveSettings(s);
-      this.cb.onColorblindChange(s.colorblind);
-    });
-
-    // 햅틱
-    const haptics = root.querySelector<HTMLInputElement>("#ss-haptics")!;
-    haptics.checked = s.haptics;
-    haptics.addEventListener("change", () => {
-      s.haptics = haptics.checked;
-      saveSettings(s);
-    });
-
-    // DAS/ARR
-    const das = root.querySelector<HTMLInputElement>("#ss-das")!;
-    const arr = root.querySelector<HTMLInputElement>("#ss-arr")!;
-    const dasv = root.querySelector<HTMLElement>("#ss-dasv")!;
-    const arrv = root.querySelector<HTMLElement>("#ss-arrv")!;
-    das.value = String(s.das);
-    arr.value = String(s.arr);
-    dasv.textContent = `${s.das}ms`;
-    arrv.textContent = `${s.arr}ms`;
-    das.addEventListener("input", () => {
-      s.das = Number(das.value);
-      dasv.textContent = `${s.das}ms`;
-      saveSettings(s);
-    });
-    arr.addEventListener("input", () => {
-      s.arr = Number(arr.value);
-      arrv.textContent = `${s.arr}ms`;
-      saveSettings(s);
-    });
-
-    // 오디오
-    const bgm = root.querySelector<HTMLInputElement>("#ss-bgm")!;
-    const sfx = root.querySelector<HTMLInputElement>("#ss-sfx")!;
-    const bgmvol = root.querySelector<HTMLInputElement>("#ss-bgmvol")!;
-    const sfxvol = root.querySelector<HTMLInputElement>("#ss-sfxvol")!;
-    bgm.checked = s.bgm;
-    sfx.checked = s.sfx;
-    bgmvol.value = String(Math.round(s.bgmVol * 100));
-    sfxvol.value = String(Math.round(s.sfxVol * 100));
-    bgm.addEventListener("change", () => {
-      s.bgm = bgm.checked;
-      saveSettings(s);
-    });
-    sfx.addEventListener("change", () => {
-      s.sfx = sfx.checked;
-      saveSettings(s);
-    });
-    bgmvol.addEventListener("input", () => {
-      s.bgmVol = Number(bgmvol.value) / 100;
-      saveSettings(s);
-    });
-    sfxvol.addEventListener("input", () => {
-      s.sfxVol = Number(sfxvol.value) / 100;
-      saveSettings(s);
-    });
-
-    // CRT
-    const crt = root.querySelector<HTMLInputElement>("#ss-crt")!;
-    crt.checked = s.crt;
-    crt.addEventListener("change", () => {
-      s.crt = crt.checked;
-      document.body.classList.toggle("crt", s.crt);
-      saveSettings(s);
-    });
-
-    syncInputMode();
+    sync();
   }
 }

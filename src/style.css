@@ -395,8 +395,9 @@ body.crt #crt {
   opacity: 0.45;
 }
 
-/* ── 시작 화면 ── */
-#start-screen {
+/* ── 시작 화면 / 설정 화면 ── */
+#start-screen,
+#settings-screen {
   position: fixed;
   inset: 0;
   display: none;
@@ -405,6 +406,28 @@ body.crt #crt {
   background: radial-gradient(circle at 50% 30%, #16163a, #07070f 70%);
   z-index: 100;
   padding: 16px;
+}
+
+.ss-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.ss-head h2 {
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--accent);
+}
+.ss-back {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid #33335a;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .start-card {

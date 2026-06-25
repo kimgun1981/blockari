@@ -6,6 +6,7 @@ import { TouchInput } from "./input/TouchInput";
 import { ButtonInput } from "./input/ButtonInput";
 import { HUD } from "./ui/HUD";
 import { StartScreen, type StartChoice } from "./ui/StartScreen";
+import { SettingsPanel } from "./ui/SettingsPanel";
 import { loadSettings, saveSettings } from "./ui/settings";
 import { setHaptics } from "./input/haptics";
 import { audio } from "./audio/ChiptuneEngine";
@@ -133,13 +134,27 @@ function boot() {
     if (r) playReplay(r);
   };
 
+  const settingsPanel = new SettingsPanel(
+    {
+      onThemeChange: () => applyTheme(),
+      onColorblindChange: (on) => renderer.setColorblind(on),
+      onBack: () => {
+        settingsPanel.hide();
+        startScreen.show();
+      },
+    },
+    settings
+  );
+
   const startScreen = new StartScreen(
     {
       onStart: startGame,
       onDaily: startDaily,
       onReplay: playLastReplay,
-      onThemeChange: () => applyTheme(),
-      onColorblindChange: (on) => renderer.setColorblind(on),
+      onOpenSettings: () => {
+        startScreen.hide();
+        settingsPanel.show();
+      },
     },
     settings
   );
